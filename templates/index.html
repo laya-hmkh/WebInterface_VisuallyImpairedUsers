@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Caption + OCR + TTS</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #0277bd;
+      font-size: 2.5em;
+      margin-bottom: 30px;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    .gallery, .text-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 40px;
+    }
+    .image-container, .text-container {
+      position: relative;
+      margin: 20px;
+      padding: 15px;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      width: 320px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      overflow: hidden;
+    }
+    .image-container:hover, .text-container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+    .image-container img {
+      border-radius: 8px;
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .caption {
+      font-size: 16px;
+      font-weight: bold;
+      color: #fff;
+      background: rgba(33, 150, 243, 0.85);
+      padding: 8px 12px;
+      border-radius: 6px;
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 85%;
+      text-align: center;
+      white-space: pre-wrap;
+      transition: opacity 0.3s ease;
+    }
+    .image-container:not(:hover) .caption {
+      opacity: 0.7;
+    }
+    .hover-text {
+      font-size: 18px;
+      font-weight: bold;
+      color: #01579b;
+      background: #e1f5fe;
+      padding: 10px;
+      border-radius: 8px;
+      margin: 0;
+      width: 100%;
+      text-align: center;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+    .text-container:hover .hover-text {
+      background: #b3e5fc;
+      color: #0277bd;
+    }
+    audio {
+      margin-top: 30px;
+      display: block;
+      width: 300px;
+      margin-left: auto;
+      margin-right: auto;
+      filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.1));
+    }
+    @media (max-width: 600px) {
+      .image-container, .text-container {
+        width: 90%;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Hover over an image or text to generate captions and listen</h1>
+
+  <!-- Images -->
+  <div class="gallery">
+    <div class="image-container" onmouseover="getCaption(this)" aria-label="Hover to generate caption and audio">
+      <img src="https://www.visualwatermark.com/images/add-text-to-photos/add-text-to-photo-4.webp" alt="Sample Image">
+      <div class="caption">Caption will appear here</div>
+    </div>
+  </div>
+
+  <!-- Texts convertible to speech -->
+  <div class="text-section">
+    <div class="text-container" onmouseover="convertTextToSpeech(this)" aria-label="Hover to hear this text">
+      <p class="hover-text">This is the first text to convert.</p>
+    </div>
+    <div class="text-container" onmouseover="convertTextToSpeech(this)" aria-label="Hover to hear this text">
+      <p class="hover-text">Another example text to speak.</p>
+    </div>
+    <div class="text-container" onmouseover="convertTextToSpeech(this)" aria-label="Hover to hear this text">
+      <p class="hover-text">Hover over me to hear my voice.</p>
+    </div>
+  </div>
+
+  <!-- Audio player -->
+  <audio id="audioPlayer" preload="auto" controls aria-label="Audio player for generated speech"></audio>
+
+  <script>
+    const audioPlayer = document.getElementById("audioPlayer");
+
+    async function getCaption(imageContainer) {
+      const img = imageContainer.querySelector("img");
+      const captionDiv = imageContainer.querySelector(".caption");
+
+      if (!img || !captionDiv) {
+        console.error("Missing image or caption element.");
+        return;
+      }
+
+      if (imageContainer.dataset.fetching === "true") {
+        console.log("⚠️ Request already in progress, skipping new request.");
+        return;
+      }
+
+      imageContainer.dataset.fetching = "true";
+      console.log("📌 Sending GET request for:", img.src);
+
+      try {
+        const response = await fetch(`/caption?image_url=${encodeURIComponent(img.src)}`);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+        const data = await response.json();
+        console.log("📌 Server response:", data);
+
+        if (!data.caption || !data.ocr_text) {
+          captionDiv.textContent = "Error fetching caption or OCR!";
+          console.error("❌ Error fetching caption or OCR:", data);
+          return;
+        }
+
+        captionDiv.textContent = `📸 ${data.caption}\n📖 ${data.ocr_text}`;
+
+        if (data.audio_url) {
+          console.log("📌 Playing audio:", data.audio_url);
+          audioPlayer.src = data.audio_url;
+          audioPlayer.play().catch(err => console.error("❌ Audio playback error:", err));
+        } else {
+          console.warn("⚠️ Audio file not found.");
+        }
+      } catch (error) {
+        console.error("❌ Fetch error:", error);
+        captionDiv.textContent = "Failed to load caption.";
+      } finally {
+        imageContainer.dataset.fetching = "false";
+      }
+    }
+
+    async function convertTextToSpeech(textContainer) {
+      const textElement = textContainer.querySelector(".hover-text");
+      if (!textElement) {
+        console.error("Missing text element.");
+        return;
+      }
+
+      const text = textElement.textContent;
+
+      if (textContainer.dataset.fetching === "true") {
+        console.log("⚠️ Request already in progress, skipping new request.");
+        return;
+      }
+
+      textContainer.dataset.fetching = "true";
+      console.log("📌 Sending TTS request for text:", text);
+
+      try {
+        const response = await fetch(`/tts?text=${encodeURIComponent(text)}`);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+        const data = await response.json();
+        console.log("📌 Server response for TTS:", data);
+
+        if (data.audio_url) {
+          console.log("📌 Playing audio:", data.audio_url);
+          audioPlayer.src = data.audio_url;
+          audioPlayer.play().catch(err => console.error("❌ Audio playback error:", err));
+        } else {
+          console.warn("⚠️ Audio file not found.");
+        }
+      } catch (error) {
+        console.error("❌ Fetch error:", error);
+      } finally {
+        textContainer.dataset.fetching = "false";
+      }
+    }
+  </script>
+</body>
+</html>
