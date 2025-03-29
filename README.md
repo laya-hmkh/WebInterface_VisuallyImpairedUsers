@@ -24,9 +24,9 @@ This project is a Flask-based web application that combines image captioning, op
    pip install -r requirements.txt
    ```
 4. Run the application:
-  ```bash
+   ```bash
   python main.py
-  ```
+    ```
 5. Open you browser and navigate to: http://localhost:5000
 
 ## Usage
