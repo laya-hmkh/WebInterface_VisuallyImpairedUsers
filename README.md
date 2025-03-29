@@ -1,6 +1,3 @@
-Real-Time Image Interpretation and Speech Generation via Web Interfaces for Visually Impaired User
-
-
 # Image Captioning, OCR, and TTS Web App
 
 This project is a Flask-based web application that combines image captioning, optical character recognition (OCR), and text-to-speech (TTS) functionalities. Users can hover over images to generate captions and OCR text, or over text snippets to hear them spoken aloud.
