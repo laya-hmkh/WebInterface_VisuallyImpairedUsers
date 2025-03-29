@@ -25,8 +25,8 @@ This project is a Flask-based web application that combines image captioning, op
    ```
 4. Run the application:
    ```bash
-  python main.py
-    ```
+     python main.py
+   ```
 5. Open you browser and navigate to: http://localhost:5000
 
 ## Usage
