@@ -1,6 +1,6 @@
 # Image Captioning, OCR, and TTS Web App
 
-This project is a Flask-based web application that combines image captioning, optical character recognition (OCR), and text-to-speech (TTS) functionalities. Users can hover over images to generate captions and OCR text, or over text snippets to hear them spoken aloud.
+This project is a Flask-based web application that combines image captioning, optical character recognition (OCR), and text-to-speech (TTS) functionalities. Users can hover over images to generate captions and OCR text, or over text snippets to hear them spoken aloud. 
 
 ## Features
 - **Image Captioning**: Generates captions for images using a Vision Transformer (ViT) and GPT-2 model.
@@ -38,3 +38,8 @@ This project is a Flask-based web application that combines image captioning, op
 - Models are downloaded on first run (requires internet).
 - The app runs on CPU by default; modify model files for GPU support if needed.
 - Temporary files are saved in static/.
+
+  ## Image of the demo
+
+  ![image](https://github.com/user-attachments/assets/6698a3de-b96f-402f-8315-8ea76970cf37)
+
