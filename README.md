@@ -8,10 +8,6 @@ This project is a Flask-based web application that combines image captioning, op
 - **TTS**: Converts text to speech using Silero TTS models.
 - **Interactive UI**: Hover-based interactions with a modern, responsive design.
 
-## Prerequisites
-- Python 3.8+
-- Internet connection (for initial model downloads)
-
 ## Installation
 1. Clone the repository:
    ```bash
@@ -19,16 +15,16 @@ This project is a Flask-based web application that combines image captioning, op
    cd ImageCaption-OCR-TTS
    ```
 2. Create a virtual environment and activate it:
-   ```
+   ```bash
    python -m venv webIn
    webIn\Scripts\activate
    ```
 3. Install dependencies:
-   ```
+   ```bash
    pip install -r requirements.txt
    ```
 4. Run the application:
-  ```
+  ```bash
   python main.py
   ```
 5. Open you browser and navigate to: http://localhost:5000
