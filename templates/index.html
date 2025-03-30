@@ -74,12 +74,18 @@
       border-radius: 8px;
       margin: 0;
       width: 100%;
-      text-align: center;
+      text-align: left;
       transition: background 0.3s ease, color 0.3s ease;
     }
-    .text-container:hover .hover-text {
+    .hover-text span {
+      cursor: pointer;
+    }
+    .hover-text span:hover {
       background: #b3e5fc;
       color: #0277bd;
+    }
+    .text-container:hover .hover-text {
+      background: #e1f5fe;
     }
     audio {
       margin-top: 30px;
@@ -112,14 +118,19 @@
 
   <!-- Texts convertible to speech -->
   <div class="text-section">
-    <div class="text-container" onmouseover="convertTextToSpeech(this)" aria-label="Hover to hear this text">
-      <p class="hover-text">This is the first text to convert.</p>
-    </div>
-    <div class="text-container" onmouseover="convertTextToSpeech(this)" aria-label="Hover to hear this text">
-      <p class="hover-text">Another example text to speak.</p>
-    </div>
-    <div class="text-container" onmouseover="convertTextToSpeech(this)" aria-label="Hover to hear this text">
-      <p class="hover-text">Hover over me to hear my voice.</p>
+    <div class="text-container" aria-label="Hover over a sentence to hear it">
+      <p class="hover-text">
+        <span onmouseover="debouncedConvertTextToSpeech(this)">The morning sun rises gently over the horizon.</span>
+        <span onmouseover="debouncedConvertTextToSpeech(this)">Birds chirp happily in the nearby trees.</span>
+        <span onmouseover="debouncedConvertTextToSpeech(this)">A cool breeze rustles through the leaves.</span>
+        <span onmouseover="debouncedConvertTextToSpeech(this)">The world slowly awakens from its slumber.</span>
+        <span onmouseover="debouncedConvertTextToSpeech(this)">Flowers bloom with vibrant colors all around.</span>
+        <span onmouseover="debouncedConvertTextToSpeech(this)">A new day brings endless possibilities.</span>
+        <span onmouseover="debouncedConvertTextToSpeech(this)">People begin their routines with purpose.</span>
+        <span onmouseover="debouncedConvertTextToSpeech(this)">The sky paints itself with hues of blue.</span>
+        <span onmouseover="debouncedConvertTextToSpeech(this)">Nature hums a quiet, peaceful tune.</span>
+        <span onmouseover="debouncedConvertTextToSpeech(this)">Life unfolds in its beautiful simplicity.</span>
+      </p>
     </div>
   </div>
 
@@ -128,8 +139,27 @@
 
   <script>
     const audioPlayer = document.getElementById("audioPlayer");
+    let isProcessing = false; // Global flag to prevent overlapping requests
+
+    // Debounce function to limit how often convertTextToSpeech can be called
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
 
     async function getCaption(imageContainer) {
+      if (isProcessing) {
+        console.log("⚠️ Another request is processing, skipping.");
+        return;
+      }
+
       const img = imageContainer.querySelector("img");
       const captionDiv = imageContainer.querySelector(".caption");
 
@@ -138,12 +168,7 @@
         return;
       }
 
-      if (imageContainer.dataset.fetching === "true") {
-        console.log("⚠️ Request already in progress, skipping new request.");
-        return;
-      }
-
-      imageContainer.dataset.fetching = "true";
+      isProcessing = true;
       console.log("📌 Sending GET request for:", img.src);
 
       try {
@@ -172,25 +197,18 @@
         console.error("❌ Fetch error:", error);
         captionDiv.textContent = "Failed to load caption.";
       } finally {
-        imageContainer.dataset.fetching = "false";
+        isProcessing = false;
       }
     }
 
-    async function convertTextToSpeech(textContainer) {
-      const textElement = textContainer.querySelector(".hover-text");
-      if (!textElement) {
-        console.error("Missing text element.");
+    async function convertTextToSpeech(spanElement) {
+      if (isProcessing) {
+        console.log("⚠️ Another request is processing, skipping.");
         return;
       }
 
-      const text = textElement.textContent;
-
-      if (textContainer.dataset.fetching === "true") {
-        console.log("⚠️ Request already in progress, skipping new request.");
-        return;
-      }
-
-      textContainer.dataset.fetching = "true";
+      const text = spanElement.textContent;
+      isProcessing = true;
       console.log("📌 Sending TTS request for text:", text);
 
       try {
@@ -210,9 +228,13 @@
       } catch (error) {
         console.error("❌ Fetch error:", error);
       } finally {
-        textContainer.dataset.fetching = "false";
+        isProcessing = false;
       }
     }
+
+    // Debounced version of convertTextToSpeech with 500ms delay
+    const debouncedConvertTextToSpeech = debounce(convertTextToSpeech, 500);
+
   </script>
 </body>
 </html>
