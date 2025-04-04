@@ -28,11 +28,10 @@
     .image-container, .text-container {
       position: relative;
       margin: 20px;
-      padding: 15px;
       background: #ffffff;
       border-radius: 12px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-      width: 320px;
+      width: 500px;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       overflow: hidden;
     }
@@ -110,7 +109,11 @@
 
   <!-- Images -->
   <div class="gallery">
-    <div class="image-container" onmouseover="getCaption(this)" aria-label="Hover to generate caption and audio">
+    <div class="image-container" 
+         onmouseover="handleMouseOver(this)" 
+         onmouseleave="handleMouseLeave(this)" 
+         aria-label="Hover to generate caption and audio"
+         data-caption-loaded="false">
       <img src="https://www.visualwatermark.com/images/add-text-to-photos/add-text-to-photo-4.webp" alt="Sample Image">
       <div class="caption">Caption will appear here</div>
     </div>
@@ -152,6 +155,19 @@
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
       };
+    }
+
+    // Image handling functions
+    function handleMouseOver(imageContainer) {
+      if (imageContainer.dataset.captionLoaded === "false") {
+        getCaption(imageContainer);
+        imageContainer.dataset.captionLoaded = "true";
+      }
+    }
+
+    function handleMouseLeave(imageContainer) {
+      // Reset the flag when mouse leaves so it can be triggered again on next hover
+      imageContainer.dataset.captionLoaded = "false";
     }
 
     async function getCaption(imageContainer) {

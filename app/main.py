@@ -105,7 +105,7 @@ def caption_image():
 
         # Rest of the code remains the same...
         # Combine texts for TTS
-        final_text = f"Image captioning content: {caption}. And OCR content: {extracted_text}."
+        final_text = f"Image captioning content: {caption}. And Optical Character Recognition content: {extracted_text}."
         logger.info(f"Final text for TTS: {final_text}")
         
         # Generate a unique filename for the audio file
