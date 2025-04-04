@@ -11,6 +11,7 @@ import traceback
 import uuid
 from datetime import datetime
 import logging
+import threading
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -59,21 +60,54 @@ def caption_image():
         # Save temporary image for OCR
         image_path = os.path.join(STATIC_DIR, "temp_image.jpg")
         image.save(image_path)
+        
+        logger.info("Running OCR and Image Captioning simultaneously...")
 
-        # Perform Image Captioning
-        logger.info("Running Image Captioning...")
-        caption = generate_caption(image)
+        caption_result = {}
+        ocr_result = {}
+        
+        def run_caption():
+            try:
+                caption = generate_caption(image)
+                caption_result['caption'] = caption
+            except Exception as e:
+                caption_result['error'] = str(e)
+        
+        def run_ocr():
+            try:
+                extracted_text = extract_text_from_image(image_path)
+                ocr_result['text'] = extracted_text
+            except Exception as e:
+                ocr_result['error'] = str(e)
+        
+        # Create and start threads
+        caption_thread = threading.Thread(target=run_caption)
+        ocr_thread = threading.Thread(target=run_ocr)
+        
+        caption_thread.start()
+        ocr_thread.start()
+        
+        # Wait for both threads to complete
+        caption_thread.join()
+        ocr_thread.join()
+        
+        # Check for errors
+        if 'error' in caption_result:
+            raise Exception(f"Captioning failed: {caption_result['error']}")
+        if 'error' in ocr_result:
+            raise Exception(f"OCR failed: {ocr_result['error']}")
+        
+        caption = caption_result.get('caption', 'No caption generated')
+        extracted_text = ocr_result.get('text', 'No text detected')
+
         logger.info(f"Generated caption: {caption}")
-
-        # Perform OCR
-        logger.info("Running OCR...")
-        extracted_text = extract_text_from_image(image_path)
         logger.info(f"Extracted OCR text: {extracted_text}")
 
+        # Rest of the code remains the same...
         # Combine texts for TTS
         final_text = f"Image captioning content: {caption}. And OCR content: {extracted_text}."
         logger.info(f"Final text for TTS: {final_text}")
-
+        
         # Generate a unique filename for the audio file
         unique_filename = f"{uuid.uuid4().hex}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.wav"
         audio_path = os.path.join(STATIC_DIR, unique_filename)
@@ -93,6 +127,16 @@ def caption_image():
             'ocr_text': extracted_text,
             'audio_url': f"/static/{unique_filename}"
         })
+
+        # # Perform Image Captioning
+        # logger.info("Running Image Captioning...")
+        # caption = generate_caption(image)
+        # logger.info(f"Generated caption: {caption}")
+
+        # # Perform OCR
+        # logger.info("Running OCR...")
+        # extracted_text = extract_text_from_image(image_path)
+        # logger.info(f"Extracted OCR text: {extracted_text}")
 
     except requests.RequestException as e:
         logger.error(f"Error fetching image: {str(e)}")
