@@ -1,6 +1,8 @@
 import easyocr
 import logging
 import os
+import os
+from typing import Tuple, List, Dict, Union
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

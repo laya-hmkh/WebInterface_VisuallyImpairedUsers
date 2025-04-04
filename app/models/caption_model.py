@@ -50,7 +50,8 @@ def generate_caption(image):
             outputs = model.generate(**inputs, max_length=16, num_beams=4)  # Added parameters for better control
         caption = tokenizer.decode(outputs[0], skip_special_tokens=True)
         
-        logger.info(f"Generated caption: {caption}")
+        
+        logger.info(f"Generated caption (length: {len(caption)} chars)")
         return caption
 
     except Exception as e:
