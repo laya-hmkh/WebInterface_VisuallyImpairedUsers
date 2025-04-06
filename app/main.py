@@ -1,7 +1,7 @@
 import os
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 import requests
-from flask import Flask, request, jsonify, render_template, send_from_directory
+from flask import Flask, request, jsonify, render_template, send_from_directory, Response
 from models.caption_model import generate_caption
 from models.ocr_model import extract_text_from_image
 from models.tts_model import text_to_speech
@@ -12,6 +12,10 @@ import uuid
 from datetime import datetime
 import logging
 import threading
+
+from io import BytesIO
+from PIL import Image
+
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -28,6 +32,10 @@ os.makedirs(TEMPLATES_DIR, exist_ok=True)
 
 app = Flask(__name__, template_folder=TEMPLATES_DIR, static_folder=STATIC_DIR)
 
+@app.before_request
+def intercept_favicon():
+    if request.path == '/favicon.ico':
+        return Response(status=204)  # HTTP 204 No Content
 # Serve static files
 @app.route('/static/<path:filename>')
 def serve_static(filename):
@@ -53,9 +61,10 @@ def caption_image():
         logger.info(f"Fetching image from URL: {image_url}")
 
         # Download image from URL
-        response = requests.get(image_url, timeout=10)
-        response.raise_for_status()  # Raise an exception for bad status codes
-        image = Image.open(io.BytesIO(response.content)).convert("RGB")
+        # response = requests.get(image_url, timeout=10, stream=True).raw
+        # response.raise_for_status()  # Raise an exception for bad status codes
+        # image = Image.open(io.BytesIO(response.content)).convert("RGB")
+        image = Image.open(requests.get(image_url, stream=True, timeout=10).raw).convert('RGB')
 
         # Save temporary image for OCR
         image_path = os.path.join(STATIC_DIR, "temp_image.jpg")
@@ -175,6 +184,7 @@ def text_to_speech_api():
         logger.error("Server error:")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000, host='0.0.0.0')

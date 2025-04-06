@@ -1,4 +1,8 @@
-from transformers import VisionEncoderDecoderModel, ViTImageProcessor, GPT2TokenizerFast
+import os
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+import requests
+from PIL import Image
+from transformers import BlipProcessor, BlipForConditionalGeneration
 from PIL import Image
 import torch
 import logging
@@ -13,10 +17,9 @@ logger.info(f"Using device: {device}")
 
 # Load model and components
 try:
-    model = VisionEncoderDecoderModel.from_pretrained("nlpconnect/vit-gpt2-image-captioning").to(device)
-    processor = ViTImageProcessor.from_pretrained("nlpconnect/vit-gpt2-image-captioning")
-    tokenizer = GPT2TokenizerFast.from_pretrained("nlpconnect/vit-gpt2-image-captioning")
-    logger.info("Model, processor, and tokenizer loaded successfully.")
+    model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-base").to(device)
+    processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-base", use_fast = True)
+    logger.info("Model and processor loaded successfully.")
 except Exception as e:
     logger.error(f"Failed to load model components: {str(e)}")
     raise
@@ -41,14 +44,15 @@ def generate_caption(image):
 
     try:
         logger.info("Processing image for caption generation...")
-        # Prepare image for the model
-        inputs = processor(images=image, return_tensors="pt").to(device)
+        # conditional image captioning
+        text = "The image of"
+        inputs = processor(images=image, text=text, return_tensors="pt").to(device)
         
         # Generate caption
         logger.info("Generating caption...")
         with torch.no_grad():  # Disable gradient computation for inference
-            outputs = model.generate(**inputs, max_length=16, num_beams=4)  # Added parameters for better control
-        caption = tokenizer.decode(outputs[0], skip_special_tokens=True)
+            outputs = model.generate(**inputs, num_beams=4)  # Added parameters for better control
+        caption = processor.decode(outputs[0], skip_special_tokens=True)
         
         
         logger.info(f"Generated caption (length: {len(caption)} chars)")

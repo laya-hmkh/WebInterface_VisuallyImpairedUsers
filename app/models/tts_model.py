@@ -28,7 +28,7 @@ class TTSEngine:
                 repo_or_dir='snakers4/silero-models',
                 model='silero_tts',
                 language='en',
-                speaker='lj_16khz'
+                speaker='lj_16khz', 
             )
             self.model = self.model.to("cpu")
             logger.info("TTS model loaded successfully")

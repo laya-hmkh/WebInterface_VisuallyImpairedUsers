@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <link rel="icon" href="data:,"> 
+ <head>
   <!-- Metadata for character encoding and responsive viewport -->
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
   <!-- Title reflecting the tool's purpose: enhancing accessibility through image and text narration -->
-  <title>Enhanced Accessibility Tool</title>
+  <title>
+   Enhanced Accessibility Tool
+  </title>
   <!-- CSS styling for a modern, accessible, and visually appealing interface -->
   <style>
-    /* General body styling with a soft, elegant gradient */
+   /* General body styling with a soft, elegant gradient */
     body {
       font-family: 'Poppins', sans-serif;
       background: linear-gradient(145deg, #f0f4ff, #d9e7ff);
@@ -16,6 +19,58 @@
       padding: 40px;
       color: #2c3e50;
       line-height: 1.6;
+    }
+    /* URL input form styling */
+    .url-form {
+      max-width: 800px;
+      margin: 0 auto 30px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .url-input {
+      flex: 1;
+      padding: 12px 15px;
+      border: 2px solid #d9e7ff;
+      border-radius: 8px;
+      font-size: 16px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      transition: border-color 0.3s ease;
+    }
+    .url-input:focus {
+      outline: none;
+      border-color: #3498db;
+    }
+    .submit-btn {
+      background: linear-gradient(90deg, #2ecc71, #27ae60);
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
+    }
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+    /* Red arrow indicator */
+    .arrow-indicator {
+      color: #e74c3c;
+      font-size: 24px;
+      margin-right: 10px;
+      animation: bounce 2s infinite;
+    }
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% {transform: translateX(0);}
+      40% {transform: translateX(-10px);}
+      60% {transform: translateX(-5px);}
     }
     /* Centered heading with a bold, modern look */
     h1 {
@@ -33,14 +88,6 @@
       font-size: 1.2em;
       margin-bottom: 40px;
       font-weight: 300;
-    }
-    /* Section headings for demo content */
-    h2 {
-      color: #2980b9;
-      font-size: 1.8em;
-      margin: 30px 0 20px;
-      font-weight: 600;
-      text-align: center;
     }
     /* Container for demo content with a clean layout */
     .content-wrapper {
@@ -152,6 +199,13 @@
       audio {
         width: 100%;
       }
+      .url-form {
+        flex-direction: column;
+      }
+      .arrow-indicator {
+        margin-right: 0;
+        margin-bottom: 10px;
+      }
     }
     /* Status bar with a futuristic, semi-transparent look */
     .status-bar {
@@ -234,65 +288,85 @@
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
+    /* Loading spinner for URL processing */
+    .loader {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+      display: none;
+    }
+    .image-container.processing {
+      opacity: 0.8;
+      box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+    }
+    
+    .image-container.processing img {
+      filter: brightness(0.8);
+    }
   </style>
-</head>
-<body>
+ </head>
+ <body>
+  <!-- URL input form -->
+  <form class="url-form" id="urlForm" onsubmit="processUrl(event)">
+    <div class="arrow-indicator">➔</div>
+    <input type="url" class="url-input" id="urlInput" placeholder="Enter website URL (e.g., https://example.com)" required>
+    <button type="submit" class="submit-btn">Process Website</button>
+  </form>
+  <div class="loader" id="loader"></div>
+
   <!-- Main heading with a modern, bold style -->
-  <h1>Enhanced Accessibility Tool</h1>
+  <h1>
+   Enhanced Accessibility Tool
+  </h1>
   <!-- Subheading providing user instructions -->
-  <p class="subtitle">Hover and hold for 3 seconds on any content to hear descriptions</p>
-
+  <p class="subtitle">
+   Hover and hold for 1 second on any content to hear descriptions
+  </p>
   <!-- Demo Content Section with a card-like wrapper -->
-  <div class="content-wrapper">
-    <!-- Image Demo Section -->
-    <h2>Demo Images</h2>
-    <div id="image-demo-content">
-      <!-- Sample images for testing image captioning and OCR -->
-      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSPjSFOg_KiDN0NBg4YX2RCeP0jHR-uIsVAYw&s">
-      <img src="https://www.visualwatermark.com/images/add-text-to-photos/add-text-to-image-3.webp">
-      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWbQ-e7P8B1cS_96Emg2odA0pHe3lAD1LeNA&s">
-    </div>
-
-    <!-- Text Demo Section -->
-    <h2>Demo Text</h2>
-    <div id="text-demo-content">
-      <!-- Sample text for TTS testing -->
-      <p>
-        The quick brown fox jumps over the lazy dog. This sentence contains all 26 letters.
-      </p>
-      <p>
-        The human eye can distinguish about 10 million different colors.
-      </p>
-    </div>
+  <div class="content-wrapper" id="contentWrapper">
+   <!-- Content will be dynamically inserted here -->
   </div>
-
   <!-- Status bar for real-time feedback -->
   <div class="status-bar">
-    <div class="status-item">
-      <div class="status-label">Hover Timer:</div>
-      <svg class="progress-ring" viewBox="0 0 20 20">
-        <circle class="progress-ring-circle" r="8" cx="10" cy="10"></circle>
-      </svg>
-      <span id="timer-count">0s</span>
+   <div class="status-item">
+    <div class="status-label">
+     Hover Timer:
     </div>
-    <div class="status-item">
-      <div class="status-label">Queue:</div>
-      <span id="queue-count">0</span>
+    <svg class="progress-ring" viewbox="0 0 20 20">
+     <circle class="progress-ring-circle" cx="10" cy="10" r="8">
+     </circle>
+    </svg>
+    <span id="timer-count">
+     0s
+    </span>
+   </div>
+   <div class="status-item">
+    <div class="status-label">
+     Queue:
     </div>
+    <span id="queue-count">
+     0
+    </span>
+   </div>
   </div>
-
   <!-- Processing indicator for visual feedback -->
   <div class="processing-indicator" id="processingIndicator">
-    <div class="processing-spinner"></div>
-    <span>Processing...</span>
+   <div class="processing-spinner"> 
+   </div>
+   <span>
+    Processing...
+   </span>
   </div>
-
   <!-- Audio player for playback of generated speech -->
-  <audio id="audioPlayer" preload="auto" controls aria-label="Audio player"></audio>
-
+  <audio aria-label="Audio player" controls="" id="audioPlayer" preload="auto">
+  </audio>
   <!-- JavaScript for interactivity and accessibility features -->
   <script>
-    // Global variables for managing state across functions
+   // Global variables for managing state across functions
     const audioPlayer = document.getElementById("audioPlayer");
     let hoverTimeout; // Timer for 3-second hover delay
     const audioQueue = []; // Queue for sequential audio playback
@@ -306,49 +380,202 @@
     const circumference = 2 * Math.PI * 8; // Circumference for progress animation
     const processingIndicator = document.getElementById('processingIndicator'); // Processing indicator element
     let activeRequestCount = 0; // Counter for active server requests
+    const urlForm = document.getElementById('urlForm');
+    const urlInput = document.getElementById('urlInput');
+    const contentWrapper = document.getElementById('contentWrapper');
+    const loader = document.getElementById('loader');
+
+    // ========== WELCOME MESSAGE ========== //
+    function playWelcomeMessage() {
+      const welcomeText = "Welcome, please add your URL in the box that the red arrow shows, then click on the green button. Finally, wait until the whole page updates.";
+      const utterance = new SpeechSynthesisUtterance(welcomeText);
+      utterance.rate = 0.9; // Slightly slower speed for clarity
+      speechSynthesis.speak(utterance);
+    }
+
+    // Play welcome message when page loads
+    window.addEventListener('load', () => {
+      playWelcomeMessage();
+      initAccessibilityTool();
+    });
+
+    // ========== URL PROCESSING ========== //
+async function extractContentFromUrl(url) {
+  try {
+    loader.style.display = 'block';
+    contentWrapper.innerHTML = '';
     
-    // ========== PROCESSING INDICATOR FUNCTIONS ========== //
-    /* Displays the processing indicator when requests are active */
+    // Speak loading message
+    const loadingMsg = new SpeechSynthesisUtterance("Loading content, please wait...");
+    speechSynthesis.speak(loadingMsg);
+    
+    // Fetch the webpage content
+    const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
+    const data = await response.json();
+    
+    if (!data.contents) throw new Error('No content received');
+    
+    // Parse the HTML content
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(data.contents, 'text/html');
+    
+    // Clear existing content
+    contentWrapper.innerHTML = '';
+    
+    // Process all nodes in order while preserving their hierarchy
+    function processNode(node) {
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        // Process images
+        if (node.tagName === 'IMG' && node.src) {
+          const container = document.createElement('div');
+          container.className = 'image-container';
+          container.dataset.captionLoaded = 'false';
+          
+          const img = document.createElement('img');
+          img.src = node.src.startsWith('http') ? node.src : new URL(node.src, url).href;
+          img.alt = '';
+          
+          const captionDiv = document.createElement('div');
+          captionDiv.className = 'caption';
+          captionDiv.textContent = 'Hover for 1s to describe';
+          
+          container.appendChild(img);
+          container.appendChild(captionDiv);
+          contentWrapper.appendChild(container);
+        }
+        // Process text elements
+        else if (['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6'].includes(node.tagName) && 
+                 node.textContent.trim()) {
+          const el = document.createElement(node.tagName.toLowerCase());
+          el.textContent = node.textContent.trim();
+          contentWrapper.appendChild(el);
+        }
+        
+        // Process child nodes recursively
+        Array.from(node.childNodes).forEach(processNode);
+      }
+    }
+    
+    // Start processing from the body
+    if (doc.body) {
+      processNode(doc.body);
+    }
+    
+    // Speak completion message
+    const completeMsg = new SpeechSynthesisUtterance("Content loaded successfully");
+    speechSynthesis.speak(completeMsg);
+    
+    // Initialize accessibility features
+    initAccessibilityTool();
+    
+  } catch (error) {
+    console.error("Error:", error);
+    contentWrapper.innerHTML = `<p style="color: #e74c3c;">Error loading content</p>`;
+    
+    // Speak error message
+    const errorMsg = new SpeechSynthesisUtterance("Error loading content");
+    speechSynthesis.speak(errorMsg);
+  } finally {
+    loader.style.display = 'none';
+  }
+}
+
+    // ========== IMAGE PROCESSING ========== //
+    async function handleImageHover(imageContainer) {
+      clearTimeout(hoverTimeout);
+      startTimer(imageContainer);
+      
+      hoverTimeout = setTimeout(async () => {
+        if (imageContainer.dataset.captionLoaded === "true") return;
+        
+        const img = imageContainer.querySelector("img");
+        if (!img?.src) return;
+        
+        try {
+          showProcessing();
+          imageContainer.classList.add('processing');
+          
+          const response = await fetch(`/caption?image_url=${encodeURIComponent(img.src)}`);
+          
+          if (!response.ok) throw new Error(`Server error: ${response.status}`);
+          
+          const data = await response.json();
+          
+          if (data.error) {
+            updateCaption(imageContainer, `Error: ${data.error}`);
+            return;
+          }
+          
+          if (data.caption || data.ocr_text) {
+            const captionText = [
+              data.caption && `📸 ${data.caption}`,
+              data.ocr_text && `📖 ${data.ocr_text}`
+            ].filter(Boolean).join('\n');
+            
+            updateCaption(imageContainer, captionText);
+          }
+          
+          if (data.audio_url) {
+            audioQueue.push({
+              type: 'image',
+              imageUrl: img.src,
+              audioUrl: data.audio_url,
+              element: imageContainer
+            });
+            updateQueueDisplay();
+            processQueue();
+          }
+          
+          imageContainer.dataset.captionLoaded = "true";
+          
+        } catch (error) {
+          console.error("Image processing failed:", error);
+          updateCaption(imageContainer, "Failed to describe image");
+        } finally {
+          hideProcessing();
+          imageContainer.classList.remove('processing');
+        }
+      }, 1000); // Changed to 1 second
+    }
+
+    // Helper function to update captions
+    function updateCaption(container, text) {
+      const captionDiv = container.querySelector(".caption");
+      if (captionDiv) {
+        captionDiv.textContent = text;
+        captionDiv.style.backgroundColor = text.startsWith("Error") 
+          ? "rgba(231, 76, 60, 0.9)" 
+          : "rgba(41, 128, 185, 0.9)";
+      }
+    }
+    async function processUrl(event) {
+      event.preventDefault(); // Prevent default form submission
+      const url = document.getElementById('urlInput').value.trim();
+      
+      if (url) {
+        try {
+          document.getElementById('loader').style.display = 'block';
+          await extractContentFromUrl(url);
+        } catch (error) {
+          console.error("Error processing URL:", error);
+          alert("Error processing URL. Please check the console for details.");
+        } finally {
+          document.getElementById('loader').style.display = 'none';
+        }
+      }
+    }
+        // ========== PROCESSING INDICATOR FUNCTIONS ========== //
     function showProcessing() {
       activeRequestCount++;
       processingIndicator.style.display = 'flex';
     }
 
-    /* Hides the processing indicator when all requests complete */
     function hideProcessing() {
       activeRequestCount--;
       if (activeRequestCount <= 0) {
         activeRequestCount = 0;
         processingIndicator.style.display = 'none';
       }
-    }
-
-    // ========== TIMER FUNCTIONS ========== //
-    /* Starts a 3-second timer with visual progress for hover events */
-    function startTimer(element) {
-      clearTimer();
-      hoverStartTime = Date.now();
-      let secondsPassed = 0;
-      
-      timerInterval = setInterval(() => {
-        secondsPassed = Math.floor((Date.now() - hoverStartTime) / 1000);
-        const progress = (secondsPassed / 3) * 100;
-        const offset = circumference - (progress / 100) * circumference;
-        
-        progressCircle.style.strokeDashoffset = offset;
-        timerCount.textContent = `${secondsPassed}s`;
-        
-        if (secondsPassed >= 3) {
-          clearTimer();
-        }
-      }, 100);
-    }
-
-    /* Clears the timer and resets UI elements */
-    function clearTimer() {
-      clearInterval(timerInterval);
-      timerCount.textContent = '0s';
-      progressCircle.style.strokeDashoffset = circumference;
     }
 
     // ========== QUEUE DISPLAY ========== //
@@ -448,7 +675,7 @@
         } finally {
           hideProcessing();
         }
-      }, 3000);
+      }, 1000);
     }
 
     // ========== IMAGE PROCESSING ========== //
@@ -491,8 +718,36 @@
         } finally {
           hideProcessing();
         }
-      }, 3000);
+      }, 1000);
     }
+
+    // ========== TIMER FUNCTIONS ========== //
+/* Starts a 1-second timer with visual progress for hover events */
+  function startTimer(element) {
+    clearTimer();
+    hoverStartTime = Date.now();
+    let secondsPassed = 0;
+    
+    timerInterval = setInterval(() => {
+      secondsPassed = Math.floor((Date.now() - hoverStartTime) / 1000);
+      const progress = (secondsPassed / 1) * 100; // Changed to 1 second
+      const offset = circumference - (progress / 100) * circumference;
+      
+      progressCircle.style.strokeDashoffset = offset;
+      timerCount.textContent = `${secondsPassed}s`;
+      
+      if (secondsPassed >= 1) { // Changed to 1 second
+        clearTimer();
+      }
+    }, 100);
+  }
+
+  /* Clears the timer and resets UI elements */
+  function clearTimer() {
+    clearInterval(timerInterval);
+    timerCount.textContent = '0s';
+    progressCircle.style.strokeDashoffset = circumference;
+  }
 
     // ========== DOM INITIALIZATION ========== //
     /**
@@ -506,7 +761,7 @@
       
       const captionDiv = document.createElement('div');
       captionDiv.className = 'caption';
-      captionDiv.textContent = 'Hover for 3s to describe';
+      captionDiv.textContent = 'Hover for 1s to describe';
       
       img.parentNode.insertBefore(container, img);
       container.appendChild(img);
@@ -528,6 +783,7 @@
      * Open-source note: Extend to other HTML tags or adjust event listeners as needed
      */
      function initAccessibilityTool() {
+      
       document.querySelectorAll('img:not(.processed)').forEach(img => {
         const container = img.closest('.image-container') || createImageContainer(img);
         
@@ -539,7 +795,7 @@
         
         img.classList.add('processed');
       });
-
+    
       document.querySelectorAll('p, h1, h2, h3, li, td, a').forEach(element => {
         if (element.classList.contains('processed-text') || !element.textContent.trim()) return;
         
@@ -559,14 +815,6 @@
         element.classList.add('processed-text');
       });
     }
-
-    // Initialize the tool on page load, DOM content load, and DOM mutations
-    window.addEventListener('load', initAccessibilityTool);
-    document.addEventListener('DOMContentLoaded', initAccessibilityTool);
-    new MutationObserver(initAccessibilityTool).observe(document.body, {
-      childList: true,
-      subtree: true
-    });
   </script>
-</body>
+ </body>
 </html>
