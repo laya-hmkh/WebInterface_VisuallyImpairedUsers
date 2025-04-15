@@ -44,6 +44,17 @@ def generate_caption(image):
 
     try:
         logger.info("Processing image for caption generation...")
+        # Resize image to 384x384 pixels while preserving aspect ratio
+        logger.info("Resizing image to 384x384 pixels...")
+        image = image.convert("RGB")  # Ensure image is in RGB format
+        max_size = 384
+        image.thumbnail((max_size, max_size), Image.Resampling.LANCZOS)  # Resize while maintaining aspect ratio
+        # Pad image to square 384x384 if needed
+        new_image = Image.new("RGB", (max_size, max_size), (0, 0, 0))  # Black background
+        offset = ((max_size - image.width) // 2, (max_size - image.height) // 2)
+        new_image.paste(image, offset)
+        image = new_image
+
         # Prepare inputs for conditional image captioning with a starter text
         text = "The image of"
         inputs = processor(images=image, text=text, return_tensors="pt").to(device)

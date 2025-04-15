@@ -369,6 +369,7 @@
         
         function processNode(node) {
           if (node.nodeType === Node.ELEMENT_NODE) {
+            // Handle images (existing code)
             if (node.tagName === 'IMG' && node.src) {
               const container = document.createElement('div');
               container.className = 'image-container';
@@ -386,13 +387,27 @@
               container.appendChild(captionDiv);
               contentWrapper.appendChild(container);
             }
-            else if (['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6'].includes(node.tagName) && 
-                     node.textContent.trim()) {
+            // Handle paragraphs and headings (existing code)
+            else if (['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6'].includes(node.tagName) && node.textContent.trim()) {
               const el = document.createElement(node.tagName.toLowerCase());
               el.textContent = node.textContent.trim();
               contentWrapper.appendChild(el);
             }
-            
+            // NEW: Handle lists (<ul>, <ol>) and list items (<li>)
+            else if (node.tagName === 'UL' || node.tagName === 'OL') {
+              const list = document.createElement(node.tagName.toLowerCase());
+              Array.from(node.children).forEach(child => {
+                if (child.tagName === 'LI') {
+                  const li = document.createElement('li');
+                  li.textContent = child.textContent.trim();
+                  list.appendChild(li);
+                }
+              });
+              if (list.children.length > 0) {
+                contentWrapper.appendChild(list);
+              }
+            }
+            // Process child nodes recursively
             Array.from(node.childNodes).forEach(processNode);
           }
         }
@@ -502,8 +517,19 @@
       
       hoverTimeout = setTimeout(async () => {
         if (!spanElement.isConnected) return;
+
+        // Detect if the text is inside an <li>
+        const listItem = spanElement.closest('li');
+        let text = spanElement.textContent.trim();
+
+        if (listItem) {
+          const list = listItem.closest('ul, ol');
+          const itemIndex = Array.from(list?.children || []).indexOf(listItem) + 1;
+          const totalItems = list?.children.length || 0;
+          text = `List item ${itemIndex} of ${totalItems}: ${text}`;
+        }
         
-        const text = spanElement.textContent.trim();
+        <!-- const text = spanElement.textContent.trim(); -->
         if (!text) return;
         
         try {
