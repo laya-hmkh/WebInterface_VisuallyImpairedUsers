@@ -15,6 +15,6 @@ This project is a Flask-based web application that combines image captioning, op
 - Temporary files are saved in static/.
 
   ## Image of the demo
-
-  ![image](https://github.com/user-attachments/assets/6698a3de-b96f-402f-8315-8ea76970cf37)
+![image](https://github.com/user-attachments/assets/fce072d9-d5f1-4c7b-9337-f36b3fbf81b6)
+![image](https://github.com/user-attachments/assets/7fa62845-4fa3-459e-aa2f-a71bac87e325)
 
