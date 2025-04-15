@@ -69,10 +69,25 @@ def caption_image():
 
     try:
         logger.info(f"Fetching image from URL: {image_url}")
+        
+        # Improved image download handling
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+        }
+        
+        # Download image with timeout and headers
+        response = requests.get(image_url, headers=headers, timeout=10)
+        response.raise_for_status()  # Raise HTTP errors
+        
+        # Verify content type is an image
+        content_type = response.headers.get('Content-Type', '')
+        if 'image' not in content_type:
+            raise ValueError(f"URL does not point to an image (Content-Type: {content_type})")
 
-        # Download and open image from URL
-        image = Image.open(requests.get(image_url, stream=True, timeout=10).raw).convert('RGB')
-
+        # Load image from response content
+        image_data = BytesIO(response.content)
+        image = Image.open(image_data).convert('RGB')
+        
         # Save temporary image for OCR processing
         image_path = os.path.join(STATIC_DIR, "temp_image.jpg")
         image.save(image_path)
